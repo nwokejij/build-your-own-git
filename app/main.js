@@ -43,10 +43,9 @@ async function computeHash(file){
 // header + size
 try{
   const data = await fs.readFileSync(file, 'utf-8');
-  const dataUnzipped = zlib.inflateSync(data);
-  const size = dataUnzipped.toString().length;
+  const size = data.length;
   const header = `blob ${size}\0`;
-  const store = header + dataUnzipped.toString();
+  const store = header + data;
   try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
   try {
