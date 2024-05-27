@@ -53,7 +53,7 @@ try{
   try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
   try {
-    fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), { recursive: true});
+    fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
     fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(file));
     } catch (err) {
       console.log("Error: Couldn't Write File");
