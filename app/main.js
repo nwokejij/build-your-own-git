@@ -46,7 +46,11 @@ try{
   const size = data.length;
   const header = `blob ${size}\0`;
   const store = header + data;
+  try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
+  } catch (err){
+    console.log("Couldn't Compute Hash");
+  }
   try {
     fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), file);
     } catch (err) {
