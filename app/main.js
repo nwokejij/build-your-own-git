@@ -48,15 +48,16 @@ try{
   const store = header + data;
   try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
-  } catch (err){
-    console.log("Couldn't Compute Hash");
-  }
   try {
     fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), file);
     } catch (err) {
       console.log("Error: Couldn't Write File");
     }
     process.stdout.write(hash);
+  } catch (err){
+    console.log("Couldn't Compute Hash");
+  }
+ 
  } catch (err) {
     console.log("Error: Couldn't Read File");
   }
