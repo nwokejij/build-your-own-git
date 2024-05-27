@@ -41,15 +41,20 @@ async function readBlobContent(hash) {
 async function computeHash(file){
   // hash = file.slice(0,2) + file.slice(2);
 // header + size
+if (process.argv[3] !== "-w"){
+  return;
+}
+
 try{
   const data = await fs.readFileSync(file, 'utf-8');
   const size = data.length;
-  const header = `blob ${size}\0`;
+  const header = `blob ${size}\x00`;
   const store = header + data;
   try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
   try {
-    fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), file);
+    fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), { recursive: true});
+    fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(file));
     } catch (err) {
       console.log("Error: Couldn't Write File");
     }
@@ -57,7 +62,6 @@ try{
   } catch (err){
     console.log("Couldn't Compute Hash");
   }
- 
  } catch (err) {
     console.log("Error: Couldn't Read File");
   }
