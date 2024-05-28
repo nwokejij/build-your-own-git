@@ -67,7 +67,7 @@ async function readTree(hash){
   const elements = dataUnzipped.toString();
   const arrayOfElements = elements.split('\0');
   const arrayOfNames = [];
-  for (let i = 1; i < arrayOfElements.length() - 1; i++){
+  for (let i = 1; i < arrayOfElements.length - 1; i++){
     const spaceSplit = arrayOfElements[i].split(' ')[1];
     arrayOfNames.push(spaceSplit);
   }
