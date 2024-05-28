@@ -73,11 +73,11 @@ async function readTree(hash){
   }
   arrayOfNames.sort();
   names = ""
-  for (let name in arrayOfNames){
+  for (let name in arrayOfElements){
     names += name + "\n";
     
   }
-  process.stdout.write(arrayOfElements);
+  process.stdout.write(names);
 }
 
 
