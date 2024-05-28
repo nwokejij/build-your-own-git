@@ -65,7 +65,7 @@ async function readTree(hash){
   const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
   const dataUnzipped = zlib.inflateSync(content); // zlib compression
   const elements = dataUnzipped.toString();
-  const arrayOfElements = elements.split('\0');
+  const arrayOfElements = ;
   const arrayOfNames = [];
   for (let i = 1; i < arrayOfElements.length - 1; i++){
     const spaceSplit = arrayOfElements[i].split(' ')[1];
@@ -74,10 +74,21 @@ async function readTree(hash){
   arrayOfNames.sort();
   names = ""
   for (let name in arrayOfElements){
-    names += name + "\n";
+    names += arrayOfElements[name] + "\n";
     
   }
   process.stdout.write(names);
 }
+
+const extractBetween = (str, startChar, endChar) => {
+  const startIndex = str.indexOf(startChar);
+  const endIndex = str.indexOf(endChar, startIndex + 1);
+
+  if (startIndex !== -1 && endIndex !== -1) {
+    return str.substring(startIndex + 1, endIndex);
+  } else {
+    return null; // or handle error as needed
+  }
+};
 
 
