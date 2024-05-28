@@ -49,7 +49,7 @@ if (process.argv[3] !== "-w"){
   const size = data.length;
   const header = `blob ${size}\x00`;
   const store = header + data;
-  const hash = crypto.createHash('sha-1').update(store).digest('hex');
+  const hash = crypto.createHash('sha1').update(store).digest('hex');
   try {
     fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
     fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(file));
