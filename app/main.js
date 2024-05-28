@@ -18,8 +18,11 @@ switch (command) {
     readBlobContent(hash);
     break;
   case "hash-object":
-   
     computeHash();
+    break;
+  case "ls-tree":
+    const treeHash = process.argv[4];
+    readTree(treeHash);
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -58,6 +61,23 @@ if (process.argv[3] !== "-w"){
     }
     process.stdout.write(hash);
   } 
-  
+async function readTree(hash){
+  const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
+  const dataUnzipped = zlib.inflateSync(content); // zlib compression
+  const elements = dataUnzipped.toString();
+  const arrayOfElements = elements.split('\0');
+  const arrayOfNames = [];
+  for (let i = 1; i < arrayOfElements.length() - 1; i++){
+    const spaceSplit = arrayOfElements[i].split(' ')[1];
+    arrayOfNames.push(spaceSplit);
+  }
+  arrayOfNames.sort();
+  names = ""
+  for (let name in arrayOfNames){
+    names += name + "\n";
+    
+  }
+  process.stdout.write(names);
+}
 
 
