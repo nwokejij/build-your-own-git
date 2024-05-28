@@ -18,8 +18,8 @@ switch (command) {
     readBlobContent(hash);
     break;
   case "hash-object":
-    const file = process.argv[4];
-    computeHash(file);
+   
+    computeHash();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -38,19 +38,17 @@ async function readBlobContent(hash) {
 	const res = dataUnzipped.toString().split('\0')[1]; //
 	process.stdout.write(res); // print result to stdout
 }
-async function computeHash(file){
+function computeHash(){
   // hash = file.slice(0,2) + file.slice(2);
 // header + size
 if (process.argv[3] !== "-w"){
   return;
 }
-
-try{
-  const data = await fs.readFileSync(file, 'utf-8');
+  const file = process.argv[4];
+  const data = fs.readFileSync(file, 'utf-8');
   const size = data.length;
   const header = `blob ${size}\x00`;
   const store = header + data;
-  try {
   const hash = crypto.createHash('sha-1').update(store).digest('hex');
   try {
     fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
@@ -59,14 +57,7 @@ try{
       console.log("Error: Couldn't Write File");
     }
     process.stdout.write(hash);
-  } catch (err){
-    console.log("Couldn't Compute Hash");
-  }
- } catch (err) {
-    console.log("Error: Couldn't Read File");
-  }
-  
+  } 
   
 
-}
 
