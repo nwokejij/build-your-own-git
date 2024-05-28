@@ -77,7 +77,7 @@ async function readTree(hash){
     names += name + "\n";
     
   }
-  process.stdout.write(names);
+  process.stdout.write(elements);
 }
 
 
