@@ -135,6 +135,7 @@ function createTree(filePath){
   const store = Buffer.concat([Buffer.from(header), treeContent]);
   const hash = crypto.createHash('sha1').update(store).digest("binary");
   if (filePath == path.join(process.cwd(), ".git", "objects")){
+      console.log("checkpoint 1");
       fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
       fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), hash);
   }
