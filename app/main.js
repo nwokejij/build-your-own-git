@@ -26,6 +26,7 @@ switch (command) {
     break;
   case "write-tree":
     const wd = path.join(process.cwd(), ".git", "objects");
+    console.log("Hello");
     process.std.write(createTree(wd));
     break;
   default:
