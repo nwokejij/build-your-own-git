@@ -142,10 +142,10 @@ function createTree(filePath){
   const treeContent = Buffer.concat(entries);
   const header = `tree ${treeContent.length}\0`;
   const store = Buffer.concat([Buffer.from(header), treeContent]);
-  const hash = crypto.createHash('sha1').update(store).digest("binary");
+  const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
   if (filePath == path.join(process.cwd(), ".git", "objects")){
       fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
-      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), hash);
+      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(hash));
   }
   return hash; // cannot be hex
 }
