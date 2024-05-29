@@ -22,7 +22,11 @@ switch (command) {
     break;
   case "ls-tree":
     const treeHash = process.argv[4];
-    readTree(treeHash);
+    process.stdout.print(readTree(treeHash));
+    break;
+  case "write-tree":
+    wd = path.join(process.cwd(), ".git", "objects");
+    process.std.print(createTree(wd));
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -48,30 +52,24 @@ if (process.argv[3] !== "-w"){
   return;
 }
   const file = process.argv[4];
-  const data = fs.readFileSync(file, 'utf-8');
-  const size = data.length;
-  const header = `blob ${size}\x00`;
-  const store = header + data;
-  const hash = crypto.createHash('sha1').update(store).digest('hex');
+  // const data = fs.readFileSync(file, 'utf-8');
+  // const size = data.length;
+  // const header = `blob ${size}\x00`;
+  // const store = header + data;
+  const hash = createBlob(file);
   try {
     fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
     fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
     } catch (err) {
       console.log("Error: Couldn't Write File");
     }
-    process.stdout.write(hash);
+    process.stdout.write(createBlob(file));
   } 
 async function readTree(hash){
   const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
   const dataUnzipped = zlib.inflateSync(content); // zlib compression
   const elements = dataUnzipped.toString();
   const arrayOfElements = elements.split('\0');
-  const arrayOfNames = [];
-  for (let i = 1; i < arrayOfElements.length - 1; i++){
-    const spaceSplit = arrayOfElements[i].split(' ')[1];
-    arrayOfNames.push(spaceSplit);
-  }
-  arrayOfNames.sort();
   names = ""
   for (let i = 1; i < arrayOfElements.length - 1; i++){
     names += arrayOfElements[i].split(" ")[1] + "\n";
@@ -79,15 +77,67 @@ async function readTree(hash){
   process.stdout.write(names);
 }
 
-const extractBetween = (str, startChar, endChar) => {
-  const startIndex = str.indexOf(startChar);
-  const endIndex = str.indexOf(endChar, startIndex + 1);
 
-  if (startIndex !== -1 && endIndex !== -1) {
-    return str.substring(startIndex + 1, endIndex);
-  } else {
-    return null; // or handle error as needed
+function iterateTree(dirPath){
+  const entries = [];
+  fs.readdirSync(dirPath, (err, files) => {
+    if (err) {
+      console.error('Error reading directory:', err);
+      return;
+    }
+
+    files.forEach(file => {
+      const fullPath = path.join(dirPath, file);
+      let mode, hash, entry;
+      fs.lstatSync(fullPath, (err, stats) => {
+        if (err) {
+          console.error('Error getting stats for file:', err);
+          return;
+        }
+        if (stats.isFile()) {
+          mode = "100644";
+          hash = createBlob(file);
+        } else if (stats.isDirectory()) {
+          mode = "40000";
+          hash = createTree(fullPath);
+        }
+
+        if (mode && hash) {
+
+          if (mode === "40000"){
+            entry = `${mode} ${item}\0${Buffer.from(hash, 'binary')}`;
+          } else {
+            entry = `${mode} ${item}\0${Buffer.from(hash, 'hex')}`;
+          }
+          entries.push(Buffer.from(entry));
+        }
+      });
+      
+    });
+  });
+  return entries;
+}
+
+function createBlob(file){
+  // creates blob and returns hash
+  const data = fs.readFileSync(file, 'utf-8');
+  const size = data.length;
+  const header = `blob ${size}\x00`;
+  const store = Buffer.concat([Buffer.from(header), data]);
+  return crypto.createHash('sha1').update(store).digest('hex');
+}
+
+function createTree(filePath){
+  // this is the last step
+  const entries = iterateTree(filePath);
+  const treeContent = Buffer.concat(entries);
+  const header = `tree ${treeContent.length}\0`;
+  const store = Buffer.concat([Buffer.from(header), treeContent]);
+  const hash = crypto.createHash('sha1').update(store).digest("binary");
+  if (filePath == path.join(process.cwd(), ".git", "objects")){
+      fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
+      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), hash);
   }
-};
-
+  return hash; // cannot be hex
+}
 
