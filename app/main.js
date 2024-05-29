@@ -130,12 +130,14 @@ function createBlob(file){
 function createTree(filePath){
   // this is the last step
   const entries = iterateTree(filePath);
+  for (let x in entries) {
+    console.log(entries[x]);
+  }
   const treeContent = Buffer.concat(entries);
   const header = `tree ${treeContent.length}\0`;
   const store = Buffer.concat([Buffer.from(header), treeContent]);
   const hash = crypto.createHash('sha1').update(store).digest("binary");
   if (filePath == path.join(process.cwd(), ".git", "objects")){
-      console.log("checkpoint 1");
       fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
       fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), hash);
   }
