@@ -79,14 +79,16 @@ async function readTree(hash){
 
 
 function iterateTree(dirPath){
+  console.log("Checkpoint 1\n");
   const entries = [];
   fs.readdirSync(dirPath, (err, files) => {
     if (err) {
       console.error('Error reading directory:', err);
       return;
     }
-
+    console.log("CheckPoint 2\n");
     files.forEach(file => {
+      console.log("CheckPoint 3\n");
       const fullPath = path.join(dirPath, file);
       let mode, hash, entry;
       fs.lstatSync(fullPath, (err, stats) => {
@@ -94,6 +96,7 @@ function iterateTree(dirPath){
           console.error('Error getting stats for file:', err);
           return;
         }
+        console.log("CheckPoint 4\n");
         if (stats.isFile()) {
           mode = "100644";
           hash = createBlob(file);
@@ -103,18 +106,20 @@ function iterateTree(dirPath){
         }
 
         if (mode && hash) {
-
+          console.log("CheckPoint 5\n");
           if (mode === "40000"){
             entry = `${mode} ${item}\0${Buffer.from(hash, 'binary')}`;
           } else {
             entry = `${mode} ${item}\0${Buffer.from(hash, 'hex')}`;
           }
           entries.push(Buffer.from(entry));
+          console.log("CheckPoint 6\n");
         }
       });
       
     });
   });
+  console.log("CheckPoint 7\n");
   return entries;
 }
 
