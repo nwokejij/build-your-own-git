@@ -25,7 +25,7 @@ switch (command) {
     process.stdout.print(readTree(treeHash));
     break;
   case "write-tree":
-    wd = path.join(process.cwd(), ".git", "objects");
+    const wd = path.join(process.cwd(), ".git", "objects");
     process.std.print(createTree(wd));
     break;
   default:
