@@ -152,9 +152,10 @@ function createBlob(file){
   const size = data.length;
   const header = `blob ${size}\x00`;
   const store = header + data;
+  const hash = crypto.createHash('sha1').update(store).digest('hex');
   fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
   fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
-  return crypto.createHash('sha1').update(store).digest('hex');
+  return hash;
 }
 
 function createTree(dir = process.cwd()){
