@@ -76,7 +76,8 @@ async function readTree(hash){
   for (let i = 1; i < arrayOfElements.length - 1; i++){
     names += arrayOfElements[i].split(" ")[1] + "\n";
   }
-  process.stdout.write(names);
+  filteredNames = names.filter((name) => name != null || name != undefined);
+  process.stdout.write(filteredNames);
 }
 
 
