@@ -149,7 +149,7 @@ function createCommit(treeHash, parentHash, message = ""){
        // commit {size}\0 {content}
        //{content} = 1. {tree_sha}, 2. parent, 3.committer 4. commit message
        // parent {parent1_sha}
-      
+       message += "\n";
        const treeHeader = `tree ${treeHash}\n`;
        const parent = `parent ${parentHash}\n`;
        const unixTimestampSeconds = Math.floor(Date.now() / 1000);
