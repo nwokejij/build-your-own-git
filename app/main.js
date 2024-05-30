@@ -180,7 +180,7 @@ function createTree(dir = process.cwd()){
       });
     }
   }
-  const treeData = entries.map((e) => `${e.mode} ${e.name}\x00${Buffer.from(e.hash, "hex")}`).join("");
+  // const treeData = entries.map((e) => `${e.mode} ${e.name}\x00${Buffer.from(e.hash, "hex")}`).join("");
 
   // for (let x in entries) {
   //   console.log(entries[x]);
@@ -196,7 +196,7 @@ function createTree(dir = process.cwd()){
   const store = Buffer.concat([Buffer.from(header), contents]);
   const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
   fs.mkdirSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), { recursive: true});
-  fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(store));
+  fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
   return hash; // cannot be hex
 }
 
