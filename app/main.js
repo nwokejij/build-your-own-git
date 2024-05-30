@@ -163,6 +163,7 @@ function createCommit(treeHash, parentHash, message = ""){
        const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
        fs.mkdirSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), { recursive: true});
       fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
+      return hash;
        } catch (err){
         console.error("Couldn't Process Request");
        }
