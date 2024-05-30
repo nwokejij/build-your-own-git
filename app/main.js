@@ -72,12 +72,16 @@ async function readTree(hash){
   const dataUnzipped = zlib.inflateSync(content); // zlib compression
   const elements = dataUnzipped.toString();
   const arrayOfElements = elements.split('\0');
+  const arrayOfNames = []
   names = ""
   for (let i = 1; i < arrayOfElements.length - 1; i++){
-    names += arrayOfElements[i].split(" ")[1] + "\n";
+    arrayOfNames.push(arrayOfElements[i].split(" ")[1] + "\n")
   }
-  filteredNames = names.filter((name) => name != null || name != undefined);
-  process.stdout.write(filteredNames);
+  const filteredNames = arrayOfNames.filter((name) => name != null || name != undefined)
+ for (score of filteredNames){
+    names += score;
+ }
+  process.stdout.write(names);
 }
 
 
