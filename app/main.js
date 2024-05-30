@@ -151,7 +151,7 @@ function createBlob(file){
   const data = fs.readFileSync(file, 'utf-8');
   const size = data.length;
   const header = `blob ${size}\x00`;
-  const store = Buffer.concat([Buffer.from(header), data]);
+  const store = header + data;
   fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
   fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
   return crypto.createHash('sha1').update(store).digest('hex');
