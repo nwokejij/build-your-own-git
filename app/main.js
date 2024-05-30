@@ -27,7 +27,7 @@ switch (command) {
   case "write-tree":
     // const wd = path.join(process.cwd(), ".git", "objects");
     // const s = createTree(wd);
-    process.std.write(createTree());
+    process.stdout.write(createTree());
     break;
   default:
     throw new Error(`Unknown command ${command}`);
