@@ -22,7 +22,7 @@ switch (command) {
     break;
   case "ls-tree":
     const treeHash = process.argv[4];
-    process.stdout.write(readTree(treeHash));
+    readTree(treeHash);
     break;
   case "write-tree":
     // const wd = path.join(process.cwd(), ".git", "objects");
