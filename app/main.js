@@ -151,11 +151,11 @@ function createCommit(treeHash, parentHash, message = ""){
        // parent {parent1_sha}
       
        const treeHeader = `tree ${treeHash}\n`;
-       const parent = `parent ${parentHash}`;
+       const parent = `parent ${parentHash}\n`;
        const unixTimestampSeconds = Math.floor(Date.now() / 1000);
        const date = new Date();
        const timezone = date.getTimezoneOffset();
-       const author = `author author_name <author_name.gmail.com> ${unixTimestampSeconds} ${timezone}`;
+       const author = `author author_name <author_name.gmail.com> ${unixTimestampSeconds} ${timezone}\n`;
        const commiter = `commiter jonathan <jonathan@gmail.com> ${unixTimestampSeconds} ${timezone}\n`;
        const contents = Buffer.concat([Buffer.from(treeHeader), Buffer.from(parent), Buffer.from(author), Buffer.from(commiter), Buffer.from(message)]);
        const commitHeader = `commit ${contents.length}\0`;
@@ -163,7 +163,7 @@ function createCommit(treeHash, parentHash, message = ""){
        const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
        fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
       fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
-      return message;
+      return hash;
       
 
        //tree {tree_sha}
