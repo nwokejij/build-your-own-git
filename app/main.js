@@ -29,6 +29,12 @@ switch (command) {
     // const s = createTree(wd);
     process.stdout.write(createTree());
     break;
+  case "commit-tree":
+    const treeSha = process.argv[3];
+    const parentHash = process.argv[5];
+    const message = process.argv[7];
+    createCommit(treeSha, parentHash, message);
+    break;
   default:
     throw new Error(`Unknown command ${command}`);
 }
@@ -85,72 +91,6 @@ async function readTree(hash){
 }
 
 
-function iterateTree(dirPath){
-  console.log("Checkpoint 1\n");
-  const entries = [];
-  const filesAndDirs = fs
-    .readdirSync(dirPath)
-    .filter((f) => f !== ".git" && f !== "main.js");
-  for (const file of filesAndDirs){
-    const fullPath = path.join(dirPath, file);
-    const mode = "";
-    const hash = "";
-    const entry = "";
-      fs.lstatSync(fullPath, (err, stats) => {
-        if (err) {
-          console.error('Error getting stats for file:', err);
-          return;
-        }
-        console.log("CheckPoint 4\n");
-        if (stats.isFile()) {
-          mode = "100644";
-          hash = createBlob(file);
-        } else if (stats.isDirectory()) {
-          mode = "40000";
-          hash = createTree(fullPath);
-        }
-
-        if (mode && hash) {
-          console.log("CheckPoint 5\n");
-          if (mode === "40000"){
-            entry = `${mode} ${file}\0${Buffer.from(hash, 'binary')}`;
-          } else {
-            entry = `${mode} ${file}\0${Buffer.from(hash, 'hex')}`;
-          }
-          entries.push(Buffer.from(entry));
-          console.log("CheckPoint 6\n");
-        }
-  })
-}
-  // fs.readdirSync(dirPath, (err, files) => {
-  //   if (err) {
-  //     console.error('Error reading directory:', err);
-  //     return;
-  //   }
-  //   console.log("CheckPoint 2\n");
-  //   files.forEach(file => {
-  //     console.log("CheckPoint 3\n");
-  //     const fullPath = path.join(dirPath, file);
-  //     let mode, hash, entry;
-  //     fs.lstatSync(fullPath, (err, stats) => {
-  //       if (err) {
-  //         console.error('Error getting stats for file:', err);
-  //         return;
-  //       }
-  //       console.log("CheckPoint 4\n");
-  //       if (stats.isFile()) {
-  //         mode = "100644";
-  //         hash = createBlob(file);
-  //       } else if (stats.isDirectory()) {
-  //         mode = "40000";
-  //         hash = createTree(fullPath);
-  //       }
-
-        
-  console.log("CheckPoint 7\n");
-  return entries;
-}
-
 function createBlob(file){
   // creates blob and returns hash
   const data = fs.readFileSync(file, 'utf-8');
@@ -204,4 +144,36 @@ function createTree(dir = process.cwd()){
   fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
   return hash; // cannot be hex
 }
+function createCommit(treeHash, parentHash, message = ""){
+   // 1. generate content
+       // commit {size}\0 {content}
+       //{content} = 1. {tree_sha}, 2. parent, 3.committer 4. commit message
+       // parent {parent1_sha}
+       const treeHeader = `tree ${treeHash}`;
+       const parent = `parent ${parentHash}`;
+       const unixTimestampSeconds = Math.floor(Date.now() / 1000);
+       const date = new Date();
+       const timezone = date.getTimezoneOffset();
+       const author = `author author_name <author_name.gmail.com> ${unixTimestampSeconds} ${timezone}`;
+       const commiter = `commiter jonathan <jonathan@gmail.com> ${unixTimestampSeconds} ${timezone}`;
+       const contents = Buffer.concat([Buffer.from(treeHeader), Buffer.from(parent), Buffer.from(author), Buffer.from(commiter), Buffer.from(message)]);
+       const commitHeader = `commit ${contents.length}\0`;
+       const store = Buffer.concat([Buffer.from(commitHeader), contents]);
+       try{
+       const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
+       fs.mkdirSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), { recursive: true});
+      fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
+       } catch (err){
+        console.error("Couldn't Process Request");
+       }
+
+       //tree {tree_sha}
+      // {parents}
+      // author {author_name} <{author_email}> {author_date_seconds} {author_date_timezone}
+      // committer {committer_name} <{committer_email}> {committer_date_seconds} {committer_date_timezone}
+
+      // {commit message}
+
+}
+function createTree()
 
