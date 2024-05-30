@@ -150,7 +150,7 @@ function createCommit(treeHash, parentHash, message = ""){
        //{content} = 1. {tree_sha}, 2. parent, 3.committer 4. commit message
        // parent {parent1_sha}
       
-       const treeHeader = `tree ${treeHash}`;
+       const treeHeader = `tree ${treeHash}\n`;
        const parent = `parent ${parentHash}`;
        const unixTimestampSeconds = Math.floor(Date.now() / 1000);
        const date = new Date();
@@ -161,8 +161,8 @@ function createCommit(treeHash, parentHash, message = ""){
        const commitHeader = `commit ${contents.length}\0`;
        const store = Buffer.concat([Buffer.from(commitHeader), contents]);
        const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
-       fs.mkdirSync(path.join(process.cwd(), ".git", "objects", parentHash.slice(0, 2)), { recursive: true});
-      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", parentHash.slice(0, 2), parentHash.slice(2)), zlib.deflateSync(store));
+       fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
+      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
       return hash;
       
 
