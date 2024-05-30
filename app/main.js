@@ -149,13 +149,12 @@ function createCommit(treeHash, parentHash, message = ""){
        // commit {size}\0 {content}
        //{content} = 1. {tree_sha}, 2. parent, 3.committer 4. commit message
        // parent {parent1_sha}
-       console.log("Checkpoint 1");
+      
        const treeHeader = `tree ${treeHash}`;
        const parent = `parent ${parentHash}`;
        const unixTimestampSeconds = Math.floor(Date.now() / 1000);
        const date = new Date();
        const timezone = date.getTimezoneOffset();
-       console.log("Checkpoint 2");
        const author = `author author_name <author_name.gmail.com> ${unixTimestampSeconds} ${timezone}`;
        const commiter = `commiter jonathan <jonathan@gmail.com> ${unixTimestampSeconds} ${timezone}`;
        const contents = Buffer.concat([Buffer.from(treeHeader), Buffer.from(parent), Buffer.from(author), Buffer.from(commiter), Buffer.from(message)]);
