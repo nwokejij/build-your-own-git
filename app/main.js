@@ -175,5 +175,4 @@ function createCommit(treeHash, parentHash, message = ""){
       // {commit message}
 
 }
-function createTree()
 
