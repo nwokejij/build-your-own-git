@@ -25,9 +25,9 @@ switch (command) {
     process.stdout.print(readTree(treeHash));
     break;
   case "write-tree":
-    const wd = path.join(process.cwd(), ".git", "objects");
-    const s = createTree(wd);
-    process.std.write(s);
+    // const wd = path.join(process.cwd(), ".git", "objects");
+    // const s = createTree(wd);
+    process.std.write(createTree());
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -44,6 +44,8 @@ async function readBlobContent(hash) {
   const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); //reads blob content at 
 	const dataUnzipped = zlib.inflateSync(content); 
 	const res = dataUnzipped.toString().split('\0')[1]; //
+  let i = "";
+  i += "yes"
 	process.stdout.write(res); // print result to stdout
 }
 function computeHash(){
@@ -59,12 +61,11 @@ if (process.argv[3] !== "-w"){
   // const store = header + data;
   const hash = createBlob(file);
   try {
-    fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
-    fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
+    
     } catch (err) {
       console.log("Error: Couldn't Write File");
     }
-    process.stdout.write(createBlob(file));
+    process.stdout.write(hash);
   } 
 async function readTree(hash){
   const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
@@ -82,16 +83,14 @@ async function readTree(hash){
 function iterateTree(dirPath){
   console.log("Checkpoint 1\n");
   const entries = [];
-  fs.readdirSync(dirPath, (err, files) => {
-    if (err) {
-      console.error('Error reading directory:', err);
-      return;
-    }
-    console.log("CheckPoint 2\n");
-    files.forEach(file => {
-      console.log("CheckPoint 3\n");
-      const fullPath = path.join(dirPath, file);
-      let mode, hash, entry;
+  const filesAndDirs = fs
+    .readdirSync(dirPath)
+    .filter((f) => f !== ".git" && f !== "main.js");
+  for (const file of filesAndDirs){
+    const fullPath = path.join(dirPath, file);
+    const mode = "";
+    const hash = "";
+    const entry = "";
       fs.lstatSync(fullPath, (err, stats) => {
         if (err) {
           console.error('Error getting stats for file:', err);
@@ -109,17 +108,40 @@ function iterateTree(dirPath){
         if (mode && hash) {
           console.log("CheckPoint 5\n");
           if (mode === "40000"){
-            entry = `${mode} ${item}\0${Buffer.from(hash, 'binary')}`;
+            entry = `${mode} ${file}\0${Buffer.from(hash, 'binary')}`;
           } else {
-            entry = `${mode} ${item}\0${Buffer.from(hash, 'hex')}`;
+            entry = `${mode} ${file}\0${Buffer.from(hash, 'hex')}`;
           }
           entries.push(Buffer.from(entry));
           console.log("CheckPoint 6\n");
         }
-      });
-      
-    });
-  });
+  })
+}
+  // fs.readdirSync(dirPath, (err, files) => {
+  //   if (err) {
+  //     console.error('Error reading directory:', err);
+  //     return;
+  //   }
+  //   console.log("CheckPoint 2\n");
+  //   files.forEach(file => {
+  //     console.log("CheckPoint 3\n");
+  //     const fullPath = path.join(dirPath, file);
+  //     let mode, hash, entry;
+  //     fs.lstatSync(fullPath, (err, stats) => {
+  //       if (err) {
+  //         console.error('Error getting stats for file:', err);
+  //         return;
+  //       }
+  //       console.log("CheckPoint 4\n");
+  //       if (stats.isFile()) {
+  //         mode = "100644";
+  //         hash = createBlob(file);
+  //       } else if (stats.isDirectory()) {
+  //         mode = "40000";
+  //         hash = createTree(fullPath);
+  //       }
+
+        
   console.log("CheckPoint 7\n");
   return entries;
 }
@@ -130,23 +152,50 @@ function createBlob(file){
   const size = data.length;
   const header = `blob ${size}\x00`;
   const store = Buffer.concat([Buffer.from(header), data]);
+  fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
+  fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2)), zlib.deflateSync(store));
   return crypto.createHash('sha1').update(store).digest('hex');
 }
 
-function createTree(filePath){
+function createTree(dir = process.cwd()){
+  const filesAndDirs = fs
+    .readdirSync(dir)
+    .filter((f) => f !== ".git" && f !== "main.js");
   // this is the last step
-  const entries = iterateTree(filePath);
-  for (let x in entries) {
-    console.log(entries[x]);
+  const entries = [];
+  for (const file of filesAndDirs) {
+    const fullPath = path.join(dir, file);
+    if (fs.statSync(fullPath).isFile()) {
+      entries.push({
+        mode: 100644,
+        name: file,
+        hash: createBlob(fullPath),
+      });
+    } else {
+      entries.push({
+        mode: 40000,
+        name: file,
+        hash: createTree(fullPath),
+      });
+    }
   }
-  const treeContent = Buffer.concat(entries);
-  const header = `tree ${treeContent.length}\0`;
-  const store = Buffer.concat([Buffer.from(header), treeContent]);
+  const treeData = entries.map((e) => `${e.mode} ${e.name}\x00${Buffer.from(e.hash, "hex")}`).join("");
+
+  // for (let x in entries) {
+  //   console.log(entries[x]);
+  // }
+  const contents = entries.reduce((acc, { mode, name, hash }) => {
+    return Buffer.concat([
+      acc,
+      Buffer.from(`${mode} ${name}\0`),
+      Buffer.from(hash, "hex"),
+    ]);
+  }, Buffer.alloc(0));
+  const header = `tree ${contents.length}\0`;
+  const store = Buffer.concat([Buffer.from(header), contents]);
   const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
-  if (filePath == path.join(process.cwd(), ".git", "objects")){
-      fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
-      fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(hash));
-  }
+  fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
+  fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(store));
   return hash; // cannot be hex
 }
 
