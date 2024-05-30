@@ -194,8 +194,8 @@ function createTree(dir = process.cwd()){
   const header = `tree ${contents.length}\0`;
   const store = Buffer.concat([Buffer.from(header), contents]);
   const hash = crypto.createHash('sha1').update(store).digest("hex").toString();
-  fs.mkdirSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), { recursive: true});
-  fs.writeFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(store));
+  fs.mkdirSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), { recursive: true});
+  fs.writeFileSync(path.join(dir, ".git", "objects", hash.slice(0, 2)), hash.slice(2), zlib.deflate(store));
   return hash; // cannot be hex
 }
 
