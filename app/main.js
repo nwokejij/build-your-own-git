@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const crypto = require('crypto');
+const https = require('https');
+const app = express();
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 // console.log("Logs from your program will appear here!");
@@ -35,6 +37,10 @@ switch (command) {
     const message = process.argv[7];
     process.stdout.write(createCommit(treeSha, parentHash, message));
     break;
+  case "clone":
+    const gitURL = process.argv[3];
+    const someDir = process.argv[4];
+    process.stdout.write(cloneRepo(gitURL, someDir));
   default:
     throw new Error(`Unknown command ${command}`);
 }
@@ -49,9 +55,7 @@ function createGitDirectory() {
 async function readBlobContent(hash) {
   const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); //reads blob content at 
 	const dataUnzipped = zlib.inflateSync(content); 
-	const res = dataUnzipped.toString().split('\0')[1]; //
-  let i = "";
-  i += "yes"
+	const res = dataUnzipped.toString().split('\0')[1]; 
 	process.stdout.write(res); // print result to stdout
 }
 function computeHash(){
@@ -173,5 +177,23 @@ function createCommit(treeHash, parentHash, message = ""){
 
       // {commit message}
 
-}
+function cloneRepo(url, dir){
+  //request for objects
+  const startIndex = url.indexOf(":");
 
+  const endIndex = url.indexOf("/");
+  const PORT = url.substring(startIndex + 1, endIndex);
+  app.listen(PORT, () => {
+  console.log(f`Listening to Git at ${PORT}`);
+  });
+  url += "/info/refs";
+  
+//   https.get(url, (res) =>
+//     if res
+    
+  
+  
+//   )
+// }
+}
+}
