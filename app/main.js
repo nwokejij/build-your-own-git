@@ -176,9 +176,11 @@ function createCommit(treeHash, parentHash, message = ""){
       // committer {committer_name} <{committer_email}> {committer_date_seconds} {committer_date_timezone}
 
       // {commit message}
+}
 
 function cloneRepo(url, dir){
   //request for objects
+  
   // const startIndex = url.indexOf(":");
 
   // const endIndex = url.indexOf("/");
@@ -213,4 +215,4 @@ request.on('error', (error) => {
   
 //   )
 // }
-}
+
