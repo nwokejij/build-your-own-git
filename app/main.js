@@ -191,9 +191,10 @@ function cloneRepo(url, dir){
   url += "/info/refs?service=git-upload-pack";
  
   https.get(url, (res) => {
-    if (res === undefined){
+    if (res == undefined){
       console.log("Error");
     }
+    console.log(res);
     res.on('error', (error) => {
       console.error('An error occurred:', error);
     });
@@ -201,7 +202,7 @@ function cloneRepo(url, dir){
     
   // As data comes in, append it to the 'data' variable
   res.on('data', (chunk) => {
-    if (chunk === undefined){
+    if (chunk == undefined){
       console.log("Chunk undefined");
     }
     data += chunk;
