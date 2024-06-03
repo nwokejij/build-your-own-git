@@ -202,10 +202,9 @@ function cloneRepo(url, dir){
     
   // As data comes in, append it to the 'data' variable
   res.on('data', (chunk) => {
-    if (chunk == undefined){
+    if (typeof chunk === "undefined"){
       console.log("Chunk undefined");
     }
-    data += chunk;
   });
   
   // When the response ends, log the data received
