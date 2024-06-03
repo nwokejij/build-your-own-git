@@ -191,12 +191,16 @@ function cloneRepo(url, dir){
   url += "/info/refs?service=git-upload-pack";
  
   https.get(url, (res) => {
+    response.on('error', (error) => {
+      console.error('An error occurred:', error);
+    });
     let data = "";
+    
   // As data comes in, append it to the 'data' variable
   response.on('data', (chunk) => {
     data += chunk;
   });
-
+  
   // When the response ends, log the data received
   response.on('end', () => {
     console.log('Data received:', data);
@@ -205,9 +209,7 @@ function cloneRepo(url, dir){
 });
 
 // Handle errors during the request
-request.on('error', (error) => {
-  console.error('An error occurred:', error);
-});
+
   }
     
     
