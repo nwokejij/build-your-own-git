@@ -187,10 +187,9 @@ function cloneRepo(url, dir){
   // console.log(f`Listening to Git at ${PORT}`);
   // });
   url += "/info/refs?service=git-upload-pack";
-  
+ 
   https.get(url, (res) => {
-    let data = '';
-
+    let data = "";
   // As data comes in, append it to the 'data' variable
   response.on('data', (chunk) => {
     data += chunk;
@@ -199,6 +198,7 @@ function cloneRepo(url, dir){
   // When the response ends, log the data received
   response.on('end', () => {
     console.log('Data received:', data);
+    return data;
   });
 });
 
