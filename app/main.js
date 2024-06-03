@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const crypto = require('crypto');
-const https = require('https');
+const fetch = require('node-fetch');
 // const app = require('express')();
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -190,33 +190,10 @@ function cloneRepo(url, dir){
   // console.log(f`Listening to Git at ${PORT}`);
   // });
   url += "/info/refs?service=git-upload-pack";
- 
-  https.get(url, (res) => {
-    if (res == undefined){
-      console.log("Error");
-    }
-    // console.log(res);
-    res.on('error', (error) => {
-      console.error('An error occurred:', error);
-    });
-    let data = "";
-    
-  // As data comes in, append it to the 'data' variable
-  // res.on('data', (chunk) => {
-  //   if (typeof chunk === "undefined"){
-  //     console.log("Chunk undefined");
-  //   }
-  // });
-  
-  // When the response ends, log the data received
-  res.on('end', () => {
-    console.log('Data received:', data);
-    return data;
-  });
-});
+ const response = await fetch(url);
+ const data = await response.text();
+ console.log(data);
 
-// Handle errors during the request
-  return "y";
   }
     
     
