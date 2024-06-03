@@ -195,7 +195,7 @@ function cloneRepo(url, dir){
     if (res == undefined){
       console.log("Error");
     }
-    console.log(res);
+    // console.log(res);
     res.on('error', (error) => {
       console.error('An error occurred:', error);
     });
