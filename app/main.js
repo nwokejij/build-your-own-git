@@ -179,7 +179,7 @@ function createCommit(treeHash, parentHash, message = ""){
       // {commit message}
 }
 
-function cloneRepo(url, dir){
+async function cloneRepo(url, dir){
   //request for objects
   
   // const startIndex = url.indexOf(":");
