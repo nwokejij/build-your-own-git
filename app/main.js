@@ -179,21 +179,38 @@ function createCommit(treeHash, parentHash, message = ""){
 
 function cloneRepo(url, dir){
   //request for objects
-  const startIndex = url.indexOf(":");
+  // const startIndex = url.indexOf(":");
 
-  const endIndex = url.indexOf("/");
-  const PORT = url.substring(startIndex + 1, endIndex);
-  app.listen(PORT, () => {
-  console.log(f`Listening to Git at ${PORT}`);
-  });
-  url += "/info/refs";
+  // const endIndex = url.indexOf("/");
+  // const PORT = url.substring(startIndex + 1, endIndex);
+  // app.listen(PORT, () => {
+  // console.log(f`Listening to Git at ${PORT}`);
+  // });
+  url += "/info/refs?service=git-upload-pack";
   
-//   https.get(url, (res) =>
-//     if res
+  https.get(url, (res) => {
+    let data = '';
+
+  // As data comes in, append it to the 'data' variable
+  response.on('data', (chunk) => {
+    data += chunk;
+  });
+
+  // When the response ends, log the data received
+  response.on('end', () => {
+    console.log('Data received:', data);
+  });
+});
+
+// Handle errors during the request
+request.on('error', (error) => {
+  console.error('An error occurred:', error);
+});
+  }
+    
     
   
   
 //   )
 // }
-}
 }
