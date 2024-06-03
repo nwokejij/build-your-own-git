@@ -41,6 +41,7 @@ switch (command) {
     const gitURL = process.argv[3];
     const someDir = process.argv[4];
     process.stdout.write(cloneRepo(gitURL, someDir));
+    break;
   default:
     throw new Error(`Unknown command ${command}`);
 }
