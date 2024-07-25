@@ -3,6 +3,7 @@ const path = require("path");
 const zlib = require("zlib");
 const crypto = require('crypto');
 const fetch = require('node-fetch');
+const moment = require('moment');
 
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -54,7 +55,7 @@ function createGitDirectory() {
   console.log("Initialized git directory");
 }
 async function readBlobContent(hash) {
-  const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); //reads blob content at 
+  const content = fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); //reads blob content at 
 	const dataUnzipped = zlib.inflateSync(content); 
 	const res = dataUnzipped.toString().split('\0')[1]; 
 	process.stdout.write(res); // print result to stdout
@@ -79,7 +80,7 @@ if (process.argv[3] !== "-w"){
     process.stdout.write(hash);
   } 
 async function readTree(hash){
-  const content = await fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
+  const content = fs.readFileSync(path.join(process.cwd(), ".git", "objects", hash.slice(0, 2), hash.slice(2))); // reads tree content
   const dataUnzipped = zlib.inflateSync(content); // zlib compression
   const elements = dataUnzipped.toString();
   const arrayOfElements = elements.split('\0');
