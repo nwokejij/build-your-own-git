@@ -3,7 +3,6 @@ const path = require("path");
 const zlib = require("zlib");
 const crypto = require('crypto');
 const fetch = require('node-fetch');
-const moment = require('moment');
 
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -61,16 +60,10 @@ async function readBlobContent(hash) {
 	process.stdout.write(res); // print result to stdout
 }
 function computeHash(){
-  // hash = file.slice(0,2) + file.slice(2);
-// header + size
 if (process.argv[3] !== "-w"){
   return;
 }
   const file = process.argv[4];
-  // const data = fs.readFileSync(file, 'utf-8');
-  // const size = data.length;
-  // const header = `blob ${size}\x00`;
-  // const store = header + data;
   const hash = createBlob(file);
   try {
     
@@ -183,18 +176,11 @@ function createCommit(treeHash, parentHash, message = ""){
 async function cloneRepo(url, dir){
   //request for objects
   
-  // const startIndex = url.indexOf(":");
 
-  // const endIndex = url.indexOf("/");
-  // const PORT = url.substring(startIndex + 1, endIndex);
-  // app.listen(PORT, () => {
-  // console.log(f`Listening to Git at ${PORT}`);
-  // });
 url += "/info/refs?service=git-upload-pack";
  const response = await fetch(url);
  const data = await response.text();
  console.log(data);
- return "yes";
 
   }
     
